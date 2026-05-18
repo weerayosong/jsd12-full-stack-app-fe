@@ -4,14 +4,24 @@ export default function UsersColumn() {
     const [mongoUsers, setMongoUsers] = useState([]);
     const [supaUsers, setSupaUsers] = useState([]);
 
+    const initialFormState = {
+        username: "",
+        email: "",
+        password: "",
+        role: "user",
+    };
+    const [mongoForm, setMongoForm] = useState(initialFormState);
+    const [supaForm, setSupaForm] = useState(initialFormState);
+
     const API_URL = "http://localhost:3002/api/v2/users";
+
+    // ===================== GET (FETCH) DATA =====================
     useEffect(() => {
         const fetchMongoUsers = async () => {
             try {
                 const response = await fetch(API_URL);
                 if (!response.ok) throw new Error("MongoDB Fetch failed");
                 const result = await response.json();
-
                 if (result.success) setMongoUsers(result.data);
             } catch (error) {
                 console.error("Error fetching MongoDB users:", error);
@@ -23,7 +33,6 @@ export default function UsersColumn() {
                 const response = await fetch(`${API_URL}/pg`);
                 if (!response.ok) throw new Error("Supabase Fetch failed");
                 const result = await response.json();
-
                 if (result.success) setSupaUsers(result.data);
             } catch (error) {
                 console.error("Error fetching Supabase users:", error);
@@ -33,6 +42,67 @@ export default function UsersColumn() {
         fetchMongoUsers();
         fetchSupaUsers();
     }, []);
+
+    // ===================== HANDLERS MONGODB =====================
+    const handleMongoChange = (e) => {
+        setMongoForm({ ...mongoForm, [e.target.name]: e.target.value });
+    };
+
+    const handleMongoSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(mongoForm),
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                setMongoUsers([...mongoUsers, result.data]);
+
+                setMongoForm(initialFormState);
+            } else {
+                alert(
+                    "MongoDB Post Error: " +
+                        (result.error?.message || "Something went wrong"),
+                );
+            }
+        } catch (error) {
+            console.error("MongoDB Post Error:", error);
+        }
+    };
+
+    // ===================== HANDLERS SUPABASE =====================
+    const handleSupaChange = (e) => {
+        setSupaForm({ ...supaForm, [e.target.name]: e.target.value });
+    };
+
+    const handleSupaSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch(`${API_URL}/pg`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(supaForm),
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                setSupaUsers([...supaUsers, result.data]);
+                setSupaForm(initialFormState);
+            } else {
+                alert(
+                    "Supabase Post Error: " +
+                        (result.error?.message ||
+                            result.error ||
+                            "Something went wrong"),
+                );
+            }
+        } catch (error) {
+            console.error("Supabase Post Error:", error);
+        }
+    };
 
     return (
         <div className="flex flex-col gap-6 h-full min-h-0">
@@ -44,34 +114,58 @@ export default function UsersColumn() {
                     </span>
                 </div>
 
-                <div className="shrink-0 p-4 border-b border-gray-100 bg-white flex flex-col gap-3">
+                <form
+                    onSubmit={handleMongoSubmit}
+                    className="shrink-0 p-4 border-b border-gray-100 bg-white flex flex-col gap-3"
+                >
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <input
                             type="text"
+                            name="username"
+                            value={mongoForm.username}
+                            onChange={handleMongoChange}
+                            required
                             placeholder="Username (req)"
                             className="w-full bg-slate-50 border border-gray-200 text-sm px-3 py-2 rounded-sm focus:outline-none focus:border-slate-400"
                         />
                         <input
                             type="email"
+                            name="email"
+                            value={mongoForm.email}
+                            onChange={handleMongoChange}
+                            required
                             placeholder="Email (req)"
                             className="w-full bg-slate-50 border border-gray-200 text-sm px-3 py-2 rounded-sm focus:outline-none focus:border-slate-400"
                         />
                         <input
                             type="password"
-                            placeholder="Password"
+                            name="password"
+                            value={mongoForm.password}
+                            onChange={handleMongoChange}
+                            required
+                            placeholder="Password (req)"
                             className="w-full bg-slate-50 border border-gray-200 text-sm px-3 py-2 rounded-sm focus:outline-none focus:border-slate-400"
                         />
                         <div className="flex gap-2">
-                            <select className="flex-1 bg-slate-50 border border-gray-200 text-sm px-3 py-2 rounded-sm focus:outline-none focus:border-slate-400 text-slate-600">
+                            <select
+                                name="role"
+                                value={mongoForm.role}
+                                onChange={handleMongoChange}
+                                className="flex-1 bg-slate-50 border border-gray-200 text-sm px-3 py-2 rounded-sm focus:outline-none focus:border-slate-400 text-slate-600"
+                            >
                                 <option value="user">Role: user</option>
                                 <option value="admin">Role: admin</option>
                             </select>
-                            <button className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-sm text-sm font-medium transition-colors">
+
+                            <button
+                                type="submit"
+                                className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-sm text-sm font-medium transition-colors cursor-pointer"
+                            >
                                 Post
                             </button>
                         </div>
                     </div>
-                </div>
+                </form>
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50">
                     {mongoUsers.length === 0 ? (
@@ -96,10 +190,10 @@ export default function UsersColumn() {
                                     </p>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button className="text-xs px-2 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-sm uppercase font-bold transition-colors">
+                                    <button className="text-xs px-2 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-sm uppercase font-bold transition-colors cursor-pointer">
                                         Put
                                     </button>
-                                    <button className="text-xs px-2 py-1 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-sm uppercase font-bold transition-colors">
+                                    <button className="text-xs px-2 py-1 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-sm uppercase font-bold transition-colors cursor-pointer">
                                         Del
                                     </button>
                                 </div>
@@ -117,34 +211,57 @@ export default function UsersColumn() {
                     </span>
                 </div>
 
-                <div className="shrink-0 p-4 border-b border-gray-100 bg-white flex flex-col gap-3">
+                <form
+                    onSubmit={handleSupaSubmit}
+                    className="shrink-0 p-4 border-b border-gray-100 bg-white flex flex-col gap-3"
+                >
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <input
                             type="text"
+                            name="username"
+                            value={supaForm.username}
+                            onChange={handleSupaChange}
+                            required
                             placeholder="Username (req)"
                             className="w-full bg-slate-50 border border-gray-200 text-sm px-3 py-2 rounded-sm focus:outline-none focus:border-slate-400"
                         />
                         <input
                             type="email"
+                            name="email"
+                            value={supaForm.email}
+                            onChange={handleSupaChange}
+                            required
                             placeholder="Email (req)"
                             className="w-full bg-slate-50 border border-gray-200 text-sm px-3 py-2 rounded-sm focus:outline-none focus:border-slate-400"
                         />
                         <input
                             type="password"
-                            placeholder="Password"
+                            name="password"
+                            value={supaForm.password}
+                            onChange={handleSupaChange}
+                            required
+                            placeholder="Password (req)"
                             className="w-full bg-slate-50 border border-gray-200 text-sm px-3 py-2 rounded-sm focus:outline-none focus:border-slate-400"
                         />
                         <div className="flex gap-2">
-                            <select className="flex-1 bg-slate-50 border border-gray-200 text-sm px-3 py-2 rounded-sm focus:outline-none focus:border-slate-400 text-slate-600">
+                            <select
+                                name="role"
+                                value={supaForm.role}
+                                onChange={handleSupaChange}
+                                className="flex-1 bg-slate-50 border border-gray-200 text-sm px-3 py-2 rounded-sm focus:outline-none focus:border-slate-400 text-slate-600"
+                            >
                                 <option value="user">Role: user</option>
                                 <option value="admin">Role: admin</option>
                             </select>
-                            <button className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-sm text-sm font-medium transition-colors">
+                            <button
+                                type="submit"
+                                className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-sm text-sm font-medium transition-colors cursor-pointer"
+                            >
                                 Post
                             </button>
                         </div>
                     </div>
-                </div>
+                </form>
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50">
                     {supaUsers.length === 0 ? (
@@ -169,10 +286,10 @@ export default function UsersColumn() {
                                     </p>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button className="text-xs px-2 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-sm uppercase font-bold transition-colors">
+                                    <button className="text-xs px-2 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-sm uppercase font-bold transition-colors cursor-pointer">
                                         Put
                                     </button>
-                                    <button className="text-xs px-2 py-1 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-sm uppercase font-bold transition-colors">
+                                    <button className="text-xs px-2 py-1 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-sm uppercase font-bold transition-colors cursor-pointer">
                                         Del
                                     </button>
                                 </div>
