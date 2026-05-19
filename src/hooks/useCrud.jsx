@@ -58,7 +58,7 @@ export function useCrud(apiUrl, initialFormState, idKey = "id") {
             });
             const result = await response.json();
 
-            if (result.success) {
+            if (result.success && result.data) {
                 if (isEditing) {
                     setData(
                         data.map((item) =>
