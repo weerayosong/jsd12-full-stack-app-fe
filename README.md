@@ -1,16 +1,31 @@
-# React + Vite
+# JSD12 Week12 | Full Stack App (Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![crud dashboard that use routes and resources from my api server and db](public/ss.png)
 
-Currently, two official plugins are available:
+# API Testing Playground
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Overview
 
-## React Compiler
+- A single-screen dashboard built with **React**, **Vite**, and **Tailwind CSS v4** to test front-end integration with multiple databases.
+- Connects to an Express API server running locally on port 3002.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Implements dual-database architecture handling parallel data streams from both **MongoDB** and **Supabase (PostgreSQL)**.
 
-## Expanding the ESLint configuration
+## Current Status & Architecture
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **Completed Users CRUD:** Functional Create, Read, Update, and Delete operations for both database panels.
+
+- **Strategic Refactoring (SoC):** Completely decoupled business logic from UI rendering:
+- **Custom Hook (`useCrud`):** Manages all API operations, state updates, and form submissions.
+- **Component Composition:** Implemented the `children` pattern via `<ColumnPanel />` to create a lightweight, reusable layout wrapper.
+
+## Upcoming Roadmap
+
+- Integrate the **Products Column** (Dual-DB CRUD).
+- Integrate the **Notes Column** (Dual-DB CRUD).
+
+## Why No Extra Packages? (Context API / React Router DOM)
+
+- **State Isolation:** Data for users, products, and notes are independent. Local state keeping data flows close to their destination is cleaner than a global state store.
+- **Single-Screen Architecture:** The entire app functions within a unified dashboard grid, eliminating the need for client-side URL routing.
+- **YAGNI & Performance:** Avoids accidental complexity and over-engineering, keeping the application light, highly performant, and reliant on native React capabilities.

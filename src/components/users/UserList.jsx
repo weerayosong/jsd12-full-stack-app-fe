@@ -32,7 +32,7 @@ export default function UserList({
                             <button
                                 type="button"
                                 onClick={() => onEdit(user)}
-                                className="text-xs px-2 py-1 text-amber-600 bg-amber-50 hover:bg-amber-100 rounded-sm uppercase font-bold transition-colors cursor-pointer"
+                                className="text-xs px-2 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-sm uppercase font-bold transition-colors cursor-pointer"
                             >
                                 Put
                             </button>

@@ -1,5 +1,5 @@
 export default function UserForm({
-    formState,
+    form,
     onChange,
     onSubmit,
     editId,
@@ -14,7 +14,7 @@ export default function UserForm({
                 <input
                     type="text"
                     name="username"
-                    value={formState.username}
+                    value={form.username || ""}
                     onChange={onChange}
                     required
                     placeholder="Username (req)"
@@ -23,7 +23,7 @@ export default function UserForm({
                 <input
                     type="email"
                     name="email"
-                    value={formState.email}
+                    value={form.email || ""}
                     onChange={onChange}
                     required
                     placeholder="Email (req)"
@@ -32,7 +32,7 @@ export default function UserForm({
                 <input
                     type="password"
                     name="password"
-                    value={formState.password}
+                    value={form.password || ""}
                     onChange={onChange}
                     required={!editId}
                     placeholder={
@@ -43,7 +43,7 @@ export default function UserForm({
                 <div className="flex gap-2">
                     <select
                         name="role"
-                        value={formState.role}
+                        value={form.role || "user"}
                         onChange={onChange}
                         className="flex-1 bg-slate-50 border border-gray-200 text-sm px-3 py-2 rounded-sm focus:outline-none focus:border-slate-400 text-slate-600"
                     >

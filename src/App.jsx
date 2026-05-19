@@ -1,6 +1,6 @@
-import UsersColumn from "./components/UsersColumn";
-import ProductsColumn from "./components/ProductsColumn";
-import NotesColumn from "./components/NotesColumn";
+import UsersColumn from "./components/users/UsersColumn";
+import ProductsColumn from "./components/products/ProductsColumn";
+import NotesColumn from "./components/notes/NotesColumn";
 
 function App() {
     return (
