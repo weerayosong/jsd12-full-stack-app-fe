@@ -13,9 +13,11 @@ export default function UsersColumn() {
     const [mongoForm, setMongoForm] = useState(initialFormState);
     const [supaForm, setSupaForm] = useState(initialFormState);
 
+    const [mongoEditId, setMongoEditId] = useState(null);
+    const [supaEditId, setSupaEditId] = useState(null);
+
     const API_URL = "http://localhost:3002/api/v2/users";
 
-    // ===================== GET (FETCH) DATA =====================
     useEffect(() => {
         const fetchMongoUsers = async () => {
             try {
@@ -43,64 +45,124 @@ export default function UsersColumn() {
         fetchSupaUsers();
     }, []);
 
-    // ===================== HANDLERS MONGODB =====================
-    const handleMongoChange = (e) => {
+    // ===================== HANDLERS สำหรับ MONGODB =====================
+    const handleMongoChange = (e) =>
         setMongoForm({ ...mongoForm, [e.target.name]: e.target.value });
+
+    const handleMongoEditClick = (user) => {
+        setMongoEditId(user._id);
+
+        setMongoForm({
+            username: user.username,
+            email: user.email,
+            password: "",
+            role: user.role || "user",
+        });
+    };
+
+    const cancelMongoEdit = () => {
+        setMongoEditId(null);
+        setMongoForm(initialFormState);
     };
 
     const handleMongoSubmit = async (e) => {
         e.preventDefault();
+        const isEditing = !!mongoEditId;
+        const url = isEditing ? `${API_URL}/${mongoEditId}` : API_URL;
+        const method = isEditing ? "PUT" : "POST";
+
+        const payload = { ...mongoForm };
+        if (isEditing && !payload.password) delete payload.password;
+
         try {
-            const response = await fetch(API_URL, {
-                method: "POST",
+            const response = await fetch(url, {
+                method,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(mongoForm),
+                body: JSON.stringify(payload),
             });
             const result = await response.json();
 
             if (result.success) {
-                setMongoUsers([...mongoUsers, result.data]);
-
-                setMongoForm(initialFormState);
+                if (isEditing) {
+                    setMongoUsers(
+                        mongoUsers.map((u) =>
+                            u._id === mongoEditId ? result.data : u,
+                        ),
+                    );
+                } else {
+                    setMongoUsers([...mongoUsers, result.data]);
+                }
+                cancelMongoEdit();
             } else {
                 alert(
-                    "MongoDB Post Error: " +
-                        (result.error?.message || "Something went wrong"),
-                );
-            }
-        } catch (error) {
-            console.error("MongoDB Post Error:", error);
-        }
-    };
-
-    // ===================== HANDLERS SUPABASE =====================
-    const handleSupaChange = (e) => {
-        setSupaForm({ ...supaForm, [e.target.name]: e.target.value });
-    };
-
-    const handleSupaSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await fetch(`${API_URL}/pg`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(supaForm),
-            });
-            const result = await response.json();
-
-            if (result.success) {
-                setSupaUsers([...supaUsers, result.data]);
-                setSupaForm(initialFormState);
-            } else {
-                alert(
-                    "Supabase Post Error: " +
+                    "MongoDB Error: " +
                         (result.error?.message ||
                             result.error ||
                             "Something went wrong"),
                 );
             }
         } catch (error) {
-            console.error("Supabase Post Error:", error);
+            console.error("MongoDB Post/Put Error:", error);
+        }
+    };
+
+    // ===================== HANDLERS สำหรับ SUPABASE =====================
+    const handleSupaChange = (e) =>
+        setSupaForm({ ...supaForm, [e.target.name]: e.target.value });
+
+    const handleSupaEditClick = (user) => {
+        setSupaEditId(user.id);
+        setSupaForm({
+            username: user.username,
+            email: user.email,
+            password: "",
+            role: user.role || "user",
+        });
+    };
+
+    const cancelSupaEdit = () => {
+        setSupaEditId(null);
+        setSupaForm(initialFormState);
+    };
+
+    const handleSupaSubmit = async (e) => {
+        e.preventDefault();
+        const isEditing = !!supaEditId;
+        const url = isEditing ? `${API_URL}/pg/${supaEditId}` : `${API_URL}/pg`;
+        const method = isEditing ? "PUT" : "POST";
+
+        const payload = { ...supaForm };
+        if (isEditing && !payload.password) delete payload.password;
+
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                if (isEditing) {
+                    setSupaUsers(
+                        supaUsers.map((u) =>
+                            u.id === supaEditId ? result.data : u,
+                        ),
+                    );
+                } else {
+                    setSupaUsers([...supaUsers, result.data]);
+                }
+                cancelSupaEdit();
+            } else {
+                alert(
+                    "Supabase Error: " +
+                        (result.error?.message ||
+                            result.error ||
+                            "Something went wrong"),
+                );
+            }
+        } catch (error) {
+            console.error("Supabase Post/Put Error:", error);
         }
     };
 
@@ -116,7 +178,7 @@ export default function UsersColumn() {
 
                 <form
                     onSubmit={handleMongoSubmit}
-                    className="shrink-0 p-4 border-b border-gray-100 bg-white flex flex-col gap-3"
+                    className={`shrink-0 p-4 border-b border-gray-100 flex flex-col gap-3 transition-colors ${mongoEditId ? "bg-amber-50/30" : "bg-white"}`}
                 >
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <input
@@ -137,13 +199,18 @@ export default function UsersColumn() {
                             placeholder="Email (req)"
                             className="w-full bg-slate-50 border border-gray-200 text-sm px-3 py-2 rounded-sm focus:outline-none focus:border-slate-400"
                         />
+
                         <input
                             type="password"
                             name="password"
                             value={mongoForm.password}
                             onChange={handleMongoChange}
-                            required
-                            placeholder="Password (req)"
+                            required={!mongoEditId}
+                            placeholder={
+                                mongoEditId
+                                    ? "New Password (optional)"
+                                    : "Password (req)"
+                            }
                             className="w-full bg-slate-50 border border-gray-200 text-sm px-3 py-2 rounded-sm focus:outline-none focus:border-slate-400"
                         />
                         <div className="flex gap-2">
@@ -156,13 +223,30 @@ export default function UsersColumn() {
                                 <option value="user">Role: user</option>
                                 <option value="admin">Role: admin</option>
                             </select>
-
-                            <button
-                                type="submit"
-                                className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-sm text-sm font-medium transition-colors cursor-pointer"
-                            >
-                                Post
-                            </button>
+                            {mongoEditId ? (
+                                <>
+                                    <button
+                                        type="submit"
+                                        className="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-sm text-sm font-bold transition-colors cursor-pointer"
+                                    >
+                                        Put
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={cancelMongoEdit}
+                                        className="bg-slate-200 hover:bg-slate-300 text-slate-600 px-3 py-2 rounded-sm text-sm font-bold transition-colors cursor-pointer"
+                                    >
+                                        X
+                                    </button>
+                                </>
+                            ) : (
+                                <button
+                                    type="submit"
+                                    className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-sm text-sm font-bold transition-colors cursor-pointer"
+                                >
+                                    Post
+                                </button>
+                            )}
                         </div>
                     </div>
                 </form>
@@ -190,10 +274,19 @@ export default function UsersColumn() {
                                     </p>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button className="text-xs px-2 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-sm uppercase font-bold transition-colors cursor-pointer">
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            handleMongoEditClick(user)
+                                        }
+                                        className="text-xs px-2 py-1 text-amber-600 bg-amber-50 hover:bg-amber-100 rounded-sm uppercase font-bold transition-colors cursor-pointer"
+                                    >
                                         Put
                                     </button>
-                                    <button className="text-xs px-2 py-1 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-sm uppercase font-bold transition-colors cursor-pointer">
+                                    <button
+                                        type="button"
+                                        className="text-xs px-2 py-1 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-sm uppercase font-bold transition-colors cursor-pointer"
+                                    >
                                         Del
                                     </button>
                                 </div>
@@ -213,7 +306,7 @@ export default function UsersColumn() {
 
                 <form
                     onSubmit={handleSupaSubmit}
-                    className="shrink-0 p-4 border-b border-gray-100 bg-white flex flex-col gap-3"
+                    className={`shrink-0 p-4 border-b border-gray-100 flex flex-col gap-3 transition-colors ${supaEditId ? "bg-amber-50/30" : "bg-white"}`}
                 >
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <input
@@ -239,8 +332,12 @@ export default function UsersColumn() {
                             name="password"
                             value={supaForm.password}
                             onChange={handleSupaChange}
-                            required
-                            placeholder="Password (req)"
+                            required={!supaEditId}
+                            placeholder={
+                                supaEditId
+                                    ? "New Password (optional)"
+                                    : "Password (req)"
+                            }
                             className="w-full bg-slate-50 border border-gray-200 text-sm px-3 py-2 rounded-sm focus:outline-none focus:border-slate-400"
                         />
                         <div className="flex gap-2">
@@ -253,12 +350,30 @@ export default function UsersColumn() {
                                 <option value="user">Role: user</option>
                                 <option value="admin">Role: admin</option>
                             </select>
-                            <button
-                                type="submit"
-                                className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-sm text-sm font-medium transition-colors cursor-pointer"
-                            >
-                                Post
-                            </button>
+                            {supaEditId ? (
+                                <>
+                                    <button
+                                        type="submit"
+                                        className="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-sm text-sm font-bold transition-colors cursor-pointer"
+                                    >
+                                        Put
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={cancelSupaEdit}
+                                        className="bg-slate-200 hover:bg-slate-300 text-slate-600 px-3 py-2 rounded-sm text-sm font-bold transition-colors cursor-pointer"
+                                    >
+                                        X
+                                    </button>
+                                </>
+                            ) : (
+                                <button
+                                    type="submit"
+                                    className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-sm text-sm font-bold transition-colors cursor-pointer"
+                                >
+                                    Post
+                                </button>
+                            )}
                         </div>
                     </div>
                 </form>
@@ -286,10 +401,19 @@ export default function UsersColumn() {
                                     </p>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button className="text-xs px-2 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-sm uppercase font-bold transition-colors cursor-pointer">
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            handleSupaEditClick(user)
+                                        }
+                                        className="text-xs px-2 py-1 text-amber-600 bg-amber-50 hover:bg-amber-100 rounded-sm uppercase font-bold transition-colors cursor-pointer"
+                                    >
                                         Put
                                     </button>
-                                    <button className="text-xs px-2 py-1 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-sm uppercase font-bold transition-colors cursor-pointer">
+                                    <button
+                                        type="button"
+                                        className="text-xs px-2 py-1 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-sm uppercase font-bold transition-colors cursor-pointer"
+                                    >
                                         Del
                                     </button>
                                 </div>
