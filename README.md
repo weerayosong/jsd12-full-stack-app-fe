@@ -1,6 +1,8 @@
 # JSD12 Week12 | Full Stack App (Frontend)
 
-![crud dashboard that use routes and resources from my api server and db](public/ss.png)
+Backend Repo: https://github.com/weerayosong/jsd12-full-stack-app-be (Branch: phase-05_error-handling)
+
+![crud dashboard that use routes and resources from my api server and db](public/ss2.png)
 
 # API Testing Playground
 
@@ -21,11 +23,11 @@
 
 ## Upcoming Roadmap
 
-#### ~~- Integrate the **Products Column** (Dual-DB CRUD).~~ - Done
+#### ~~- Integrate the **Products Column** (Dual-DB CRUD).~~ - Done✅
 
-#### ~~- Integrate the **Notes Column** (Dual-DB CRUD).~~ - Done
+#### ~~- Integrate the **Notes Column** (Dual-DB CRUD).~~ - Done✅
 
-### prepare for next step.. (Admin/users Dashboard, manage products with Task notes?)
+### prepare for next step.. (Admin/users Dashboard, products management with Task notes?)🤔
 
 ## Why No Extra Packages? (Context API / React Router DOM)
 

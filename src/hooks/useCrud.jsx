@@ -22,7 +22,9 @@ export function useCrud(apiUrl, initialFormState, idKey = "id") {
 
     // Form Handlers
     const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+        const value =
+            e.target.type === "checkbox" ? e.target.checked : e.target.value;
+        setForm({ ...form, [e.target.name]: value });
     };
 
     const handleEditClick = (item) => {
