@@ -21,8 +21,11 @@
 
 ## Upcoming Roadmap
 
-- Integrate the **Products Column** (Dual-DB CRUD).
-- Integrate the **Notes Column** (Dual-DB CRUD).
+#### ~~- Integrate the **Products Column** (Dual-DB CRUD).~~ - Done
+
+#### ~~- Integrate the **Notes Column** (Dual-DB CRUD).~~ - Done
+
+### prepare for next step.. (Admin/users Dashboard, manage products with Task notes?)
 
 ## Why No Extra Packages? (Context API / React Router DOM)
 
