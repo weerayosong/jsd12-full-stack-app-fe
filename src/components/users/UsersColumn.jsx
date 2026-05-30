@@ -3,19 +3,13 @@ import ColumnPanel from "../common/ColumnPanel";
 import UserForm from "./UserForm";
 import UserList from "./UserList";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3002/api/v2";
+
 const initialForm = { username: "", email: "", password: "", role: "user" };
 
 export default function UsersColumn() {
-    const mongo = useCrud(
-        "http://localhost:3002/api/v2/users",
-        initialForm,
-        "_id",
-    );
-    const supa = useCrud(
-        "http://localhost:3002/api/v2/users/pg",
-        initialForm,
-        "id",
-    );
+    const mongo = useCrud(`${API_URL}/users`, initialForm, "_id");
+    const supa = useCrud(`${API_URL}/users/pg`, initialForm, "id");
 
     return (
         <div className="flex flex-col gap-6 h-full min-h-0">

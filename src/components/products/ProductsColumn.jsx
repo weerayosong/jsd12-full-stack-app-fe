@@ -3,6 +3,8 @@ import ColumnPanel from "../common/ColumnPanel";
 import ProductForm from "./ProductForm";
 import ProductList from "./ProductList";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3002/api/v2";
+
 const initialProductForm = {
     name: "",
     price: "",
@@ -12,16 +14,8 @@ const initialProductForm = {
 };
 
 export default function ProductsColumn() {
-    const mongo = useCrud(
-        "http://localhost:3002/api/v2/products",
-        initialProductForm,
-        "_id",
-    );
-    const supa = useCrud(
-        "http://localhost:3002/api/v2/products/pg",
-        initialProductForm,
-        "id",
-    );
+    const mongo = useCrud(`${API_URL}/products`, initialProductForm, "_id");
+    const supa = useCrud(`${API_URL}/products/pg`, initialProductForm, "id");
 
     return (
         <div className="flex flex-col gap-6 h-full min-h-0">

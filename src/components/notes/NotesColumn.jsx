@@ -3,19 +3,13 @@ import ColumnPanel from "../common/ColumnPanel";
 import NoteForm from "./NoteForm";
 import NoteList from "./NoteList";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3002/api/v2";
+
 const initialNoteForm = { title: "", content: "", isCompleted: false };
 
 export default function NotesColumn() {
-    const mongo = useCrud(
-        "http://localhost:3002/api/v2/notes",
-        initialNoteForm,
-        "_id",
-    );
-    const supa = useCrud(
-        "http://localhost:3002/api/v2/notes/pg",
-        initialNoteForm,
-        "id",
-    );
+    const mongo = useCrud(`${API_URL}/notes`, initialNoteForm, "_id");
+    const supa = useCrud(`${API_URL}/notes/pg`, initialNoteForm, "id");
 
     return (
         <div className="flex flex-col gap-6 h-full min-h-0">
