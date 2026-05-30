@@ -1,8 +1,8 @@
 # JSD12 Week12 | Full Stack App (Frontend) Lab I
 
-Backend Repo: https://github.com/weerayosong/jsd12-full-stack-app-be (Branch: phase-06_bcrypt)
+Backend Repo: https://github.com/weerayosong/jsd12-full-stack-app-be (Branch: phase-07_deployment)
 
-![crud dashboard that use routes and resources from my api server and db](public/ss2.png)
+![crud-testing-playground](public/ss2.png)
 
 # API Testing Playground
 
@@ -27,7 +27,10 @@ Backend Repo: https://github.com/weerayosong/jsd12-full-stack-app-be (Branch: ph
 
 #### ~~- Integrate the **Notes Column** (Dual-DB CRUD).~~ - Done✅
 
-### prepare for next step.. (Admin/users Dashboard, products management with Task notes?)🤔 continue at Lab II
+### prepare for next step.. (Admin/users Dashboard, products management with Task notes?)🤔
+
+to be continue at Lab II.
+https://github.com/weerayosong/jsd12-full-stack-app-fe2.git
 
 ## Why No Extra Packages? (Context API / React Router DOM)
 
