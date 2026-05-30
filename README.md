@@ -2,20 +2,20 @@
 
 Backend Repo: https://github.com/weerayosong/jsd12-full-stack-app-be (Branch: phase-07_deployment)
 
-![crud-testing-playground](public/ss2.png)
+![crud-testing-playground](public/proj3b.gif)
 
 # API Testing Playground
 
 ## Overview
 
-- A single-screen dashboard built with **React**, **Vite**, and **Tailwind CSS v4** to test front-end integration with multiple databases.
-- Connects to an Express API server running locally on port 3002.
+- A single-screen dashboard built with **React**, **Vite**, and **Tailwind CSS v4** to test front-end integration with multiple databases. Now running on Vercel
+- Connects to an Express API server running ~~locally on port 3002.~~ on Render.
 
 - Implements dual-database architecture handling parallel data streams from both **MongoDB** and **Supabase (PostgreSQL)**.
 
 ## Current Status & Architecture
 
-- **Completed Users CRUD:** Functional Create, Read, Update, and Delete operations for both database panels.
+- **Completed Users, Products, Notes CRUD:** Functional Create, Read, Update, and Delete operations for both database panels (MongoDB Atlas & PosgreSQL on Supabase).
 
 - **Strategic Refactoring (SoC):** Completely decoupled business logic from UI rendering:
 - **Custom Hook (`useCrud`):** Manages all API operations, state updates, and form submissions.
